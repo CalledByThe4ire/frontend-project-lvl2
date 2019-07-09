@@ -12,5 +12,5 @@ const after = JSON.parse(
 const result = fs.readFileSync(path.join(fixuturesPath, 'result.txt'), 'utf8');
 
 test('genDiff', () => {
-  expect(genDiff(before, after)).toBe(result.replace(/\s/g, ''));
+  expect(genDiff(before, after).replace(/\s/g, '')).toBe(result.replace(/\s/g, ''));
 });
