@@ -10,7 +10,7 @@
     "dist"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
     "prepublishOnly": "npm run build"
   },
@@ -22,6 +22,9 @@
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/CalledByThe4ire/frontend-project-lvl2/issues"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "homepage": "https://github.com/CalledByThe4ire/frontend-project-lvl2#readme",
   "dependencies": {
@@ -35,6 +38,14 @@
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.14.0",
-    "readline-sync": "^1.4.9"
+    "readline-sync": "^1.4.9",
+    "source-map-support": "^0.5.12"
+  },
+  "devDependencies": {
+    "babel-jest": "^24.8.0",
+    "eslint-plugin-jest": "^22.7.2",
+    "eslint-plugin-lodash-fp": "^2.2.0-a1",
+    "jest": "^24.8.0",
+    "jest-cli": "^24.8.0"
   }
 }
