@@ -2,7 +2,7 @@
   "name": "gendiff",
   "version": "0.0.1",
   "description": "hexlet' educational project",
-  "main": "",
+  "main": "dist/index.js",
   "bin": {
     "gendiff": "dist/bin/gendiff.js"
   },
