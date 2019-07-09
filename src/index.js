@@ -1,3 +1,4 @@
-export default (arg1, arg2) => {
-  console.log('Usage: gendiff [options] %s %s', arg1, arg2);
-};
+import 'source-map-support/register';
+import genDiff from './genDiff';
+
+export default genDiff;
