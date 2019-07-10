@@ -10,7 +10,7 @@ const before = JSON.parse(
 const after = JSON.parse(
   fs.readFileSync(path.join(fixuturesPath, 'after.json')),
 );
-const result = fs.readFileSync(path.join(fixuturesPath, 'result.txt'), 'utf8').trim();
+const result = fs.readFileSync(path.join(fixuturesPath, 'result.txt'), 'utf8');
 
 test('genDiff', () => {
   expect(parse(genDiff(before, after))).toBe(parse(result));
