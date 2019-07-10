@@ -45,8 +45,10 @@
   "devDependencies": {
     "babel-jest": "^24.8.0",
     "eslint-plugin-jest": "^22.7.2",
-    "eslint-plugin-lodash-fp": "^2.2.0-a1",
+    "eslint-plugin-lodash": "^5.1.0",
+    "i": "^0.3.6",
     "jest": "^24.8.0",
-    "jest-cli": "^24.8.0"
+    "jest-cli": "^24.8.0",
+    "npm": "^6.10.0"
   }
 }
