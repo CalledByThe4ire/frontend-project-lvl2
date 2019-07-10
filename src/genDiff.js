@@ -1,5 +1,5 @@
-/* eslint-disable operator-linebreak */
-import _ from 'lodash/fp';
+/* eslint-disable operator-linebreak, lodash/prefer-lodash-method */
+import has from 'lodash/has';
 
 export default (arg1, arg2) => {
   const obj1 = arg1;
@@ -7,11 +7,11 @@ export default (arg1, arg2) => {
 
   const result = Object.keys(obj1).reduce((acc, obj1Key) => {
     const [newKey] = Object.keys(obj2).filter(obj2Key => obj2Key !== obj1Key);
-    const newKeyValuePair = !_.has(newKey, obj1)
+    const newKeyValuePair = !has(obj1, newKey)
       ? `  + ${newKey}: ${obj2[newKey]}\n`
       : '';
 
-    if (_.has(obj1Key, obj2)) {
+    if (has(obj2, obj1Key)) {
       const newAcc =
         obj1[obj1Key] === obj2[obj1Key]
           ? [`    ${obj1Key}: ${obj1[obj1Key]}\n`, `${newKeyValuePair}`]
