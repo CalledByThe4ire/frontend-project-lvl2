@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import isEqual from 'lodash/isEqual';
+import sortBy from 'lodash/sortBy';
 import genDiff from '../src';
-import { removeWhitespaces } from '../src/helpers';
+import { convertDiffToArray } from '../src/helpers';
 
 const fixuturesPath = path.join(__dirname, '__fixtures__');
 const before = JSON.parse(
@@ -12,6 +14,14 @@ const after = JSON.parse(
 );
 const result = fs.readFileSync(path.join(fixuturesPath, 'result.txt'), 'utf8');
 
+console.log(sortBy(convertDiffToArray(genDiff(before, after))));
+console.log(sortBy(convertDiffToArray(result)));
+
 test('genDiff', () => {
-  expect(removeWhitespaces(genDiff(before, after))).toBe(removeWhitespaces(result));
+  expect(
+    isEqual(
+      sortBy(convertDiffToArray(genDiff(before, after))),
+      sortBy(convertDiffToArray(result)),
+    ),
+  ).toBeTruthy();
 });
