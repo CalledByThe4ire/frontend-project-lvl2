@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import genDiff from '../src';
-import { parse } from '../src/helpers';
+import { removeWhitespaces } from '../src/helpers';
 
 const fixuturesPath = path.join(__dirname, '__fixtures__');
 const before = JSON.parse(
@@ -13,5 +13,5 @@ const after = JSON.parse(
 const result = fs.readFileSync(path.join(fixuturesPath, 'result.txt'), 'utf8');
 
 test('genDiff', () => {
-  expect(parse(genDiff(before, after))).toBe(parse(result));
+  expect(removeWhitespaces(genDiff(before, after))).toBe(removeWhitespaces(result));
 });
