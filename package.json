@@ -40,7 +40,8 @@
     "eslint-plugin-import": "^2.14.0",
     "lodash": "^4.17.11",
     "readline-sync": "^1.4.9",
-    "source-map-support": "^0.5.12"
+    "source-map-support": "^0.5.12",
+    "js-yaml": "^3.13.1"
   },
   "devDependencies": {
     "babel-jest": "^24.8.0",

@@ -1,10 +1,10 @@
 /* eslint-disable operator-linebreak, lodash/prefer-lodash-method */
-import fs from 'fs';
 import has from 'lodash/has';
+import parse from './parsers';
 
 export default (file1, file2) => {
-  const obj1 = JSON.parse(fs.readFileSync(file1));
-  const obj2 = JSON.parse(fs.readFileSync(file2));
+  const obj1 = parse(file1);
+  const obj2 = parse(file2);
 
   const result = Object.keys(obj1).reduce((acc, obj1Key) => {
     const [newKey] = Object.keys(obj2).filter(obj2Key => obj2Key !== obj1Key);
