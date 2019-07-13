@@ -10,24 +10,32 @@ import { convertDiffToArray } from '../src/helpers';
 
 const formats = {
   json: 'json',
-  yaml: 'yml'
+  yaml: 'yml',
 };
 
-Object.keys(formats).forEach(format => {
+Object.keys(formats).forEach((format) => {
   const fixuturesPath = path.join(__dirname, '__fixtures__');
-  const before = path.join(fixuturesPath, `${format}`, `before.${formats[format]}`);
-  const after = path.join(fixuturesPath, `${format}`, `after.${formats[format]}`);
+  const before = path.join(
+    fixuturesPath,
+    `${format}`,
+    `before.${formats[format]}`,
+  );
+  const after = path.join(
+    fixuturesPath,
+    `${format}`,
+    `after.${formats[format]}`,
+  );
   const result = fs.readFileSync(
     path.join(fixuturesPath, 'result.txt'),
-    'utf8'
+    'utf8',
   );
 
   test(`genDiff ${format}`, () => {
     expect(
       isEqual(
         sortBy(convertDiffToArray(genDiff(before, after))),
-        sortBy(convertDiffToArray(result))
-      )
+        sortBy(convertDiffToArray(result)),
+      ),
     ).toBeTruthy();
   });
 });
