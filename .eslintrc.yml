@@ -5,8 +5,6 @@ plugins:
   - jest
   # https://github.com/babel/eslint-plugin-babel
   - babel
-  # https://github.com/wix/eslint-plugin-lodash
-  - lodash
 
 # https://eslint.org/docs/user-guide/configuring#specifying-environments
 env:
@@ -19,7 +17,7 @@ parser: babel-eslint
 extends:
   - 'airbnb-base'
   - 'plugin:jest/recommended'
-  - 'plugin:lodash/recommended'
+  - 'plugin:lodash-fp/recommended'
 
 rules:
   no-console: 0
