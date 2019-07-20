@@ -1,5 +1,5 @@
 /**
- * @type {Map<string:string>}
+ * @type {Map.<string:string>}
  */
 const tags = new Map([
   ['added', '+'],
@@ -12,7 +12,7 @@ const tags = new Map([
  * Возвращает значение из словаря на основе ключа,
  * переданного в качестве параметра
  * @param {string} tagType
- * @returns {Array<string>}
+ * @returns {Array.<string>}
  */
 const getTag = (tagType) => {
   const data = tags.get(tagType);
@@ -30,7 +30,7 @@ const getTag = (tagType) => {
  * Форматирует строку (ключ)
  * @param {string} key
  * @param {string} tagType
- * @returns {Array<string>}
+ * @returns {Array.<string>}
  */
 const tagKey = (key, tagType) => {
   const tagSymbol = getTag(tagType);
@@ -42,7 +42,13 @@ const tagKey = (key, tagType) => {
   return [`${tagSymbol} ${key}`.trim()];
 };
 
-export default (ast) => {
+/**
+ * Разбирает абстрактное синтаксическое дерево
+ * и формирует на его основе объект с тегированными ключами
+ * @param {AST} ast
+ * @returns {taggedObject}
+ */
+export const convertor = (ast) => {
   /**
   * @typedef {Object} taggedObject
   * @prop {string} key
@@ -50,12 +56,10 @@ export default (ast) => {
   * @prop {taggedObject} children
   */
   /**
-   * Разбирает АСД и формирует на его основе
-   * объект с тегированными ключами
-   * @param {Array<taggedObject>} data
+   * @param {Array.<taggedObject>} data
    * @param {string} keyData
    * @param {(...args: any[]) => any} func
-   * @returns {<string, *>}
+   * @returns {Object.<string, *>}
    */
   const tagData = (data, keyData, func) => data.reduce((acc, entry) => {
     const { key, value, children } = entry;
@@ -95,4 +99,28 @@ export default (ast) => {
     (acc, key) => ({ ...acc, ...tagData(ast[key], key, tagKey) }),
     {},
   );
+};
+
+/**
+ * Преобразует объект в строковое представление
+ * @param {Object.<string, *>} data
+ * @returns {string}
+ */
+export const stringify = (data) => {
+  const iter = (obj, factor) => Object.keys(obj).reduce((acc, key) => {
+    const newKey = key.match(/^[-+]/) ? key : `${' '.repeat(2)}${key}`;
+    const value = obj[key];
+    let keyValuePair = '';
+
+    if (value instanceof Object) {
+      keyValuePair = `${' '.repeat(2 * factor)}${newKey}: {\n${iter(
+        value,
+        factor + 2,
+      )}${' '.repeat(2 * factor + 2)}}\n`;
+      return `${acc}${keyValuePair}`;
+    }
+    keyValuePair = `${newKey}: ${value}\n`;
+    return `${acc}${' '.repeat(2 * factor)}${keyValuePair}`;
+  }, '');
+  return `{\n${iter(data, 1)}}`;
 };
