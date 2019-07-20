@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+/* eslint-disable max-len, implicit-arrow-linebreak */
 import { has } from 'lodash/fp';
 
 /**
@@ -10,7 +10,6 @@ import { has } from 'lodash/fp';
  * @returns {boolean}
  */
 const hasChildren = (key, obj1, obj2) =>
-  // eslint-disable-next-line
   obj1[key] instanceof Object && obj2[key] instanceof Object;
 
 /**
@@ -38,7 +37,6 @@ const getChildren = (key, obj1, obj2, func) => {
  * @returns {Array.<string>}
  */
 const getKeysDifference = (obj1, obj2) =>
-  // eslint-disable-next-line
   Object.keys(obj2).filter(key => !Object.keys(obj1).includes(key));
 
 /**
@@ -72,8 +70,7 @@ const getType = (key, obj1, obj2) => {
  * @prop {Object.<string, *>} [value]
  */
 /**
- * Формирует объект определенной структуры
- * на основе переданных параметров
+ * Формирует структурированный объект на основе переданных параметров
  * @param { string } type
  * @param { string } key
  * @param { Object.<string, *> } obj1
@@ -113,7 +110,7 @@ const createByType = (type, key, obj1, obj2, func) => {
  */
 /**
  * Формирует на основе объектов data1 и data2 абстрактное синтаксическое дерево
- * в виде объекта определенной структуры, в которой каждый ключ представлен категорией
+ * в виде структурированного объекта, в котором каждый ключ представлен категорией
  * @param {Object.<string, *>} data1
  * @param {Object.<string, *>} data2
  * @returns {AST}
