@@ -6,6 +6,7 @@ import genDiff from '../src';
 
 const formats = {
   json: 'json',
+  yaml: 'yml',
 };
 
 const fixuturesPath = path.join(__dirname, '__fixtures__');
