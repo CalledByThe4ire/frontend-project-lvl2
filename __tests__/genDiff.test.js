@@ -2,16 +2,10 @@
 
 import fs from 'fs';
 import path from 'path';
-import isEqual from 'lodash/isEqual';
-import sortBy from 'lodash/sortBy';
-
 import genDiff from '../src';
-import { convertDiffToArray } from '../src/helpers';
 
 const formats = {
   json: 'json',
-  yaml: 'yml',
-  ini: 'ini',
 };
 
 const fixuturesPath = path.join(__dirname, '__fixtures__');
@@ -29,14 +23,9 @@ const table = Object.keys(formats).reduce((acc, format) => {
     `after.${formats[format]}`,
   );
 
-  return [...acc, [before, after, result]];
+  return [...acc, [before, after, result.trim()]];
 }, []);
 
 test.each(table)('genDiff %#', (before, after, expected) => {
-  expect(
-    isEqual(
-      sortBy(convertDiffToArray(genDiff(before, after))),
-      sortBy(convertDiffToArray(expected)),
-    ),
-  ).toBeTruthy();
+  expect(genDiff(before, after)).toBe(expected);
 });

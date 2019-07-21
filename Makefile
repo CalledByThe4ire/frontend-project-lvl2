@@ -11,7 +11,7 @@ lint:
 	npx eslint . --fix
 
 start:
-	npx babel-node -- src/bin/gendiff.js /Users/calledbythefire/Documents/Projects/frontend-project-lvl2/__tests__/__fixtures__/ini/before.ini /Users/calledbythefire/Documents/Projects/frontend-project-lvl2/__tests__/__fixtures__/ini/after.ini
+	npx babel-node -- src/bin/gendiff.js /Users/calledbythefire/Documents/Projects/frontend-project-lvl2/__tests__/__fixtures__/json/before.json /Users/calledbythefire/Documents/Projects/frontend-project-lvl2/__tests__/__fixtures__/json/after.json
 
 publish:
 	npm publish --dry-run
