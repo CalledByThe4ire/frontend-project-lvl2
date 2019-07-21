@@ -7,11 +7,11 @@ import genDiff from '../src';
 const formats = {
   json: 'json',
   yaml: 'yml',
+  ini: 'ini',
 };
 
 const fixuturesPath = path.join(__dirname, '__fixtures__');
 const result = fs.readFileSync(path.join(fixuturesPath, 'result.txt'), 'utf8');
-
 const table = Object.keys(formats).reduce((acc, format) => {
   const before = path.join(
     fixuturesPath,
