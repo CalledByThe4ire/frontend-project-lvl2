@@ -11,7 +11,7 @@ const getChildren = (key, obj1, obj2, func) => {
   return {};
 };
 
-const getKeysDifference = (obj1, obj2) =>
+const getTagForKeysDifference = (obj1, obj2) =>
   Object.keys(obj2).filter(key => !Object.keys(obj1).includes(key));
 
 const getType = (key, obj1, obj2) => {
@@ -66,7 +66,7 @@ const buildAST = (data1, data2) => {
   return Object.keys(obj1).reduce((acc, key) => {
     const type = getType(key, obj1, obj2);
     const objByType = createByType(type, key, obj1, obj2, buildAST);
-    const newKeys = getKeysDifference(obj1, obj2);
+    const newKeys = getTagForKeysDifference(obj1, obj2);
     const newKeyValuePairs = newKeys.map(k => ({ key: k, value: obj2[k] }));
     const newAcc = { ...acc };
     newAcc.added = newAcc.added.length !== 0 ? newAcc.added : newKeyValuePairs;
