@@ -11,7 +11,7 @@ Move to folder
 
 Run `make install`
 
-#### [live example of package installation process & running](https://asciinema.org/a/259387)
+#### [live example of package installation process & running](https://asciinema.org/a/259516)
 
 
 

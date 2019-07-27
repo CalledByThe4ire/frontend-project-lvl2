@@ -10,7 +10,7 @@ const formats = {
   ini: 'ini',
 };
 
-const formatters = ['stringify', 'plain'];
+const formatters = ['stringify', 'plain', 'json'];
 
 const fixuturesPath = path.join(__dirname, '__fixtures__');
 

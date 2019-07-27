@@ -1,0 +1,6 @@
+{
+	"addedPropertiesCount": 5,
+	"removedPropertiesCount": 2,
+	"changedPropertiesCount": 3,
+	"unchangedPropertiesCount": 6
+}
