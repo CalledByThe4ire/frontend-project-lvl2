@@ -10,11 +10,8 @@ program
   .description('Compares two configuration files and shows a difference.')
   .option('-f, --format [type]', 'Output format', 'stringify')
   .arguments('<firstConfig> <secondConfig> [formatter]')
-  .action((arg1, arg2, output) => {
-    const file1 = arg1;
-    const file2 = arg2;
-    const formatter = output || program.format;
-    console.log(genDiff(file1, file2, formatter));
+  .action((filepath1, filepath2) => {
+    console.log(genDiff(filepath1, filepath2, program.format));
   })
   .parse(process.argv);
 
