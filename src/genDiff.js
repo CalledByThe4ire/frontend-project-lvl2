@@ -13,8 +13,8 @@ const formatters = {
   json,
 };
 
-export default (file1, file2, outputFormat) => {
-  const ast = buildAST(parseFormat(file1), parseFormat(file2));
+export default (filepath1, filepath2, outputFormat) => {
+  const ast = buildAST(parseFormat(filepath1), parseFormat(filepath2));
   const formatter = formatters[outputFormat];
   return formatter(ast);
 };
