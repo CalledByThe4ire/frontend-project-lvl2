@@ -4,45 +4,45 @@ import { identity } from 'lodash/fp';
 const propertyActions = [
   {
     type: 'added',
-    check() {
+    checkType() {
       return this.type;
     },
-    process: (previousValue, tree, key) => previousValue + tree[key].length,
+    updateNumberOfPropertyStateChange: (previousValue, tree, key) => previousValue + tree[key].length,
   },
   {
     type: 'removed',
-    check() {
+    checkType() {
       return this.type;
     },
-    process: (previousValue, tree, key) => previousValue + tree[key].length,
+    updateNumberOfPropertyStateChange: (previousValue, tree, key) => previousValue + tree[key].length,
   },
   {
     type: 'changed',
-    check() {
+    checkType() {
       return this.type;
     },
-    process: (previousValue, tree, key) => previousValue + tree[key].length,
+    updateNumberOfPropertyStateChange: (previousValue, tree, key) => previousValue + tree[key].length,
   },
   {
     type: 'unchanged',
-    check() {
+    checkType() {
       return this.type;
     },
-    process: identity,
+    updateNumberOfPropertyStateChange: identity,
   },
 ];
 
 const getPropertyAction = arg =>
-  propertyActions.find(value => arg === value.check());
+  propertyActions.find(value => arg === value.checkType());
 
-const countNumberOfStateChange = (ast, state) =>
+const countNumberOfPropertyStateChange = (ast, state) =>
   Object.keys(ast).reduce((acc, keyType) => {
     if (keyType !== state) {
       return acc;
     }
 
-    const { process } = getPropertyAction(keyType);
-    const newAcc = process(acc, ast, keyType);
+    const { updateNumberOfPropertyStateChange } = getPropertyAction(keyType);
+    const newAcc = updateNumberOfPropertyStateChange(acc, ast, keyType);
 
     return ast.unchanged.reduce((iAcc, value) => {
       const { children } = value;
@@ -50,17 +50,17 @@ const countNumberOfStateChange = (ast, state) =>
       if (!children) {
         return newIAcc;
       }
-      return newIAcc + countNumberOfStateChange(children, state);
+      return newIAcc + countNumberOfPropertyStateChange(children, state);
     }, newAcc);
   }, 0);
 
 export default ast =>
   JSON.stringify(
     {
-      addedPropertiesCount: countNumberOfStateChange(ast, 'added'),
-      removedPropertiesCount: countNumberOfStateChange(ast, 'removed'),
-      changedPropertiesCount: countNumberOfStateChange(ast, 'changed'),
-      unchangedPropertiesCount: countNumberOfStateChange(ast, 'unchanged'),
+      addedPropertiesCount: countNumberOfPropertyStateChange(ast, 'added'),
+      removedPropertiesCount: countNumberOfPropertyStateChange(ast, 'removed'),
+      changedPropertiesCount: countNumberOfPropertyStateChange(ast, 'changed'),
+      unchangedPropertiesCount: countNumberOfPropertyStateChange(ast, 'unchanged'),
     },
     null,
     '\t',

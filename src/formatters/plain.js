@@ -5,10 +5,10 @@ import { has } from 'lodash/fp';
 const propertyActions = [
   {
     type: 'added',
-    check() {
+    checkType() {
       return this.type;
     },
-    process: (key, value) => {
+    buildPropertyChangeMessage: (key, value) => {
       let newValue = value;
 
       if (value instanceof Object) {
@@ -21,17 +21,17 @@ const propertyActions = [
   },
   {
     type: 'removed',
-    check() {
+    checkType() {
       return this.type;
     },
-    process: key => `Property '${key}' was removed`,
+    buildPropertyChangeMessage: key => `Property '${key}' was removed`,
   },
   {
     type: 'changed',
-    check() {
+    checkType() {
       return this.type;
     },
-    process: (key, value) => {
+    buildPropertyChangeMessage: (key, value) => {
       let { before: newBefore, after: newAfter } = value;
 
       if (newBefore instanceof Object) {
@@ -51,14 +51,14 @@ const propertyActions = [
   },
   {
     type: 'unchanged',
-    check() {
+    checkType() {
       return this.type;
     },
-    process: () => null,
+    buildPropertyChangeMessage: () => null,
   },
 ];
 
-const getPropertyAction = arg => propertyActions.find(value => arg === value.check());
+const getPropertyAction = arg => propertyActions.find(value => arg === value.checkType());
 
 const hasKey = (data, searchKey) => {
   if (data) {
@@ -108,9 +108,9 @@ export default (ast) => {
   const traverseChildren = (data, keyType) => data.reduce((acc, entry) => {
     const { key, value, children } = entry;
     const nestedProperty = buildNestedPropertyPath(ast, key);
-    const { process } = getPropertyAction(keyType);
+    const { buildPropertyChangeMessage } = getPropertyAction(keyType);
     if (typeof value !== 'undefined') {
-      return [...acc, process(nestedProperty.join('.'), value)];
+      return [...acc, buildPropertyChangeMessage(nestedProperty.join('.'), value)];
     }
     if (children) {
       return [

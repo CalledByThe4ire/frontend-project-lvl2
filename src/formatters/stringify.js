@@ -3,24 +3,24 @@ import { sortBy, toPairs, fromPairs } from 'lodash/fp';
 const propertyActions = [
   {
     type: 'added',
-    check() {
+    checkType() {
       return this.type;
     },
-    process: (key, value) => ({ [`+ ${key}`]: value }),
+    buildTaggedKeyValuePair: (key, value) => ({ [`+ ${key}`]: value }),
   },
   {
     type: 'removed',
-    check() {
+    checkType() {
       return this.type;
     },
-    process: (key, value) => ({ [`- ${key}`]: value }),
+    buildTaggedKeyValuePair: (key, value) => ({ [`- ${key}`]: value }),
   },
   {
     type: 'changed',
-    check() {
+    checkType() {
       return this.type;
     },
-    process: (key, value) => {
+    buildTaggedKeyValuePair: (key, value) => {
       const { before, after } = value;
       return {
         [`- ${key}`]: before,
@@ -30,23 +30,23 @@ const propertyActions = [
   },
   {
     type: 'unchanged',
-    check() {
+    checkType() {
       return this.type;
     },
-    process: (key, value) => ({ [key]: value }),
+    buildTaggedKeyValuePair: (key, value) => ({ [key]: value }),
   },
 ];
 
-const getPropertyAction = arg => propertyActions.find(value => arg === value.check());
+const getPropertyAction = arg => propertyActions.find(value => arg === value.checkType());
 
 const traverseChildren = (data, keyType) => data.reduce((acc, entry) => {
   const { key, value, children } = entry;
-  const { process } = getPropertyAction(keyType);
+  const { buildTaggedKeyValuePair } = getPropertyAction(keyType);
 
   if (typeof value !== 'undefined') {
     return {
       ...acc,
-      ...process(key, value),
+      ...buildTaggedKeyValuePair(key, value),
     };
   }
   if (children) {
