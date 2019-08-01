@@ -1,4 +1,3 @@
-/* eslint-disable  implicit-arrow-linebreak */
 import { identity } from 'lodash/fp';
 
 const propertyActions = [

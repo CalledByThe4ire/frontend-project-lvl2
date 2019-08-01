@@ -21,6 +21,8 @@ extends:
 
 rules:
   no-console: 0
+  implicit-arrow-linebreak: 0
+  max-len: warn
   single-quote: true,
   tab-width: 4,
   use-tabs: false

@@ -1,5 +1,3 @@
-/* eslint-disable implicit-arrow-linebreak */
-
 import parseFormat from './parsers/parse-format';
 import buildAST from './parsers/parse-ast';
 import stringify from './formatters/stringify';

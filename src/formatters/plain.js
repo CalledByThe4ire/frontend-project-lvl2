@@ -1,5 +1,3 @@
-/* eslint-disable max-len, lodash-fp/no-extraneous-function-wrapping */
-
 import { has } from 'lodash/fp';
 
 const propertyActions = [
@@ -73,8 +71,9 @@ const hasKey = (data, searchKey) => {
     if (filteredBySearchKey.length !== 0) {
       return true;
     }
+
     const filteredByChildrenProperty = children
-      ? children.unchanged.filter(child => has('children', child))
+      ? children.unchanged.filter(has('children'))
       : [];
 
     if (filteredByChildrenProperty.length === 0) {

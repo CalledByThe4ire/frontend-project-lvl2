@@ -1,4 +1,3 @@
-/* eslint-disable implicit-arrow-linebreak */
 import { has } from 'lodash/fp';
 
 const hasChildren = (key, object1, object2) =>
