@@ -1,8 +1,6 @@
-/* eslint-disable lodash/prefer-lodash-method */
-
 import fs from 'fs';
 import path from 'path';
-import genDiff from '../src';
+import genDiff from '../../src';
 
 const formats = {
   json: 'json',
@@ -33,11 +31,11 @@ describe('gendiff', () => {
           `after.${formats[format]}`,
         );
 
-        return [...acc, [format, before, after, result.trim()]];
+        return [...acc, [format, before, after, result]];
       }, []);
 
       test.each(table)('%s', (format, before, after, expected) => {
-        expect(genDiff(before, after, formatter)).toBe(expected);
+        expect(genDiff(before, after, formatter)).toEqual(expect.stringContaining(expected));
       });
     });
   });
