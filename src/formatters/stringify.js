@@ -3,106 +3,104 @@ import { sortBy, toPairs, fromPairs } from 'lodash/fp';
 const propertyActions = [
   {
     type: 'added',
-    checkType() {
+    check() {
       return this.type;
     },
-    buildTaggedKeyValuePair: (key, value) => ({ [`+ ${key}`]: value }),
+    process: (name, args) => {
+      const { value } = args;
+      return { [`+ ${name}`]: value };
+    },
   },
   {
     type: 'removed',
-    checkType() {
+    check() {
       return this.type;
     },
-    buildTaggedKeyValuePair: (key, value) => ({ [`- ${key}`]: value }),
+    process: (name, args) => {
+      const { value } = args;
+      return { [`- ${name}`]: value };
+    },
   },
   {
     type: 'changed',
-    checkType() {
+    check() {
       return this.type;
     },
-    buildTaggedKeyValuePair: (key, value) => {
-      const { before, after } = value;
+    process: (name, args) => {
+      const { valueBefore, valueAfter } = args;
       return {
-        [`- ${key}`]: before,
-        [`+ ${key}`]: after,
+        [`- ${name}`]: valueBefore,
+        [`+ ${name}`]: valueAfter,
       };
     },
   },
   {
     type: 'unchanged',
-    checkType() {
+    check() {
       return this.type;
     },
-    buildTaggedKeyValuePair: (key, value) => ({ [key]: value }),
+    process: (name, args) => {
+      const { value } = args;
+      return { [name]: value };
+    },
   },
 ];
 
-const getPropertyAction = arg => propertyActions.find(value => arg === value.checkType());
+const getPropertyAction = arg =>
+  propertyActions.find(value => arg === value.check());
 
-const traverseChildren = (data, keyType) => data.reduce((acc, entry) => {
-  const { key, value, children } = entry;
-  const { buildTaggedKeyValuePair } = getPropertyAction(keyType);
+const format = (ast) => {
+  const mapData = (data) => {
+    const { type, name, ...rest } = data;
+    const { children } = rest;
+    const { process } = getPropertyAction(type);
 
-  if (typeof value !== 'undefined') {
-    return {
-      ...acc,
-      ...buildTaggedKeyValuePair(key, value),
-    };
-  }
-  if (children) {
-    return {
-      ...acc,
-      [key]: Object.keys(children).reduce(
-        (iAcc, n) => ({
-          ...iAcc,
-          ...traverseChildren(children[n], n),
-        }),
-        {},
-      ),
-    };
-  }
-  return {};
-}, {});
+    if (children) {
+      return {
+        [name]: children.reduce(
+          (acc, child) => ({ ...acc, ...mapData(child) }),
+          {},
+        ),
+      };
+    }
+    return process(name, rest);
+  };
+  return ast.reduce((acc, entry) => ({ ...acc, ...mapData(entry) }), {});
+};
 
-const tagData = ast => Object.keys(ast).reduce(
-  (acc, key) => ({
-    ...acc,
-    ...traverseChildren(ast[key], key),
-  }),
-  {},
-);
-
-const sort = (taggedObject, func) => {
-  const sorted = fromPairs(sortBy(func, toPairs(taggedObject)));
+const sort = (func, obj) => {
+  const sorted = fromPairs(sortBy(func, toPairs(obj)));
   return Object.keys(sorted).reduce((acc, key) => {
     const value = sorted[key];
     if (value instanceof Object) {
-      return { ...acc, [key]: sort(value, func) };
+      return { ...acc, [key]: sort(func, value) };
     }
     return { ...acc, [key]: value };
-  }, sorted);
+  }, {});
 };
 
-export default (ast) => {
-  const tagged = tagData(ast);
-  const sorted = sort(tagged, (entry) => {
+export default (obj) => {
+  const formatted = format(obj);
+  const sorted = sort((entry) => {
     const [key] = entry;
     return key.replace(/[-+]\s/, '');
-  });
-  const iter = (object, factor) => Object.keys(object).reduce((acc, key) => {
-    const newKey = key.match(/^[-+]/) ? key : `${' '.repeat(2)}${key}`;
-    const value = object[key];
-    let keyValuePair = '';
+  }, formatted);
 
-    if (value instanceof Object) {
-      keyValuePair = `${' '.repeat(2 * factor)}${newKey}: {\n${iter(
-        value,
-        factor + 2,
-      )}${' '.repeat(2 * factor + 2)}}\n`;
-      return `${acc}${keyValuePair}`;
-    }
-    keyValuePair = `${newKey}: ${value}\n`;
-    return `${acc}${' '.repeat(2 * factor)}${keyValuePair}`;
-  }, '');
+  const iter = (data, factor) =>
+    Object.keys(data).reduce((acc, key) => {
+      const newKey = key.match(/^[-+]/) ? key : `${' '.repeat(2)}${key}`;
+      const value = data[key];
+      let keyValuePair = '';
+
+      if (value instanceof Object) {
+        keyValuePair = `${' '.repeat(2 * factor)}${newKey}: {\n${iter(
+          value,
+          factor + 2,
+        )}${' '.repeat(2 * factor + 2)}}\n`;
+        return `${acc}${keyValuePair}`;
+      }
+      keyValuePair = `${newKey}: ${value}\n`;
+      return `${acc}${' '.repeat(2 * factor)}${keyValuePair}`;
+    }, '');
   return `{\n${iter(sorted, 1)}}`;
 };
