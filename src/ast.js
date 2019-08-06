@@ -1,6 +1,6 @@
 import { has } from 'lodash/fp';
 
-const buildAST = (data1, data2) => {
+const buildAST = (data1 = {}, data2 = {}) => {
   const object1 = data1;
   const object2 = data2;
 
