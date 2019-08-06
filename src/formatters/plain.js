@@ -1,132 +1,124 @@
-import { has } from 'lodash/fp';
+import { sortBy } from 'lodash/fp';
+
+const mapValue = (value) => {
+  if (value instanceof Object) {
+    return '[complex value]';
+  }
+  if (typeof value === 'string') {
+    return `'${value}'`;
+  }
+  return `${value}`;
+};
 
 const propertyActions = [
   {
     type: 'added',
-    checkType() {
+    check() {
       return this.type;
     },
-    buildPropertyChangeMessage: (key, value) => {
-      let newValue = value;
-
-      if (value instanceof Object) {
-        newValue = '[complex value]';
-      } else if (typeof value === 'string') {
-        newValue = `'${value}'`;
-      }
-      return `Property '${key}' was added with value: ${newValue}`;
+    process: (name, args) => {
+      const { value } = args;
+      const mappedValue = mapValue(value);
+      return `Property '${name}' was added with value: ${mappedValue}\n`;
     },
   },
   {
     type: 'removed',
-    checkType() {
+    check() {
       return this.type;
     },
-    buildPropertyChangeMessage: key => `Property '${key}' was removed`,
+    process: name => `Property '${name}' was removed\n`,
   },
   {
     type: 'changed',
-    checkType() {
+    check() {
       return this.type;
     },
-    buildPropertyChangeMessage: (key, value) => {
-      let { before: newBefore, after: newAfter } = value;
+    process: (name, args) => {
+      const { valueBefore, valueAfter } = args;
+      const mappedValueBefore = mapValue(valueBefore);
+      const mappedValueAfter = mapValue(valueAfter);
 
-      if (newBefore instanceof Object) {
-        newBefore = '[complex value]';
-      } else if (typeof newBefore === 'string') {
-        newBefore = `${newBefore}`;
-      }
-
-      if (newAfter instanceof Object) {
-        newAfter = '[complex value]';
-      } else if (typeof newAfter === 'string') {
-        newAfter = `${newAfter}`;
-      }
-
-      return `Property '${key}' was updated. From ${newBefore} to ${newAfter}`;
+      return `Property '${name}' was updated. From ${mappedValueBefore} to ${mappedValueAfter}\n`;
     },
   },
   {
     type: 'unchanged',
-    checkType() {
+    check() {
       return this.type;
     },
-    buildPropertyChangeMessage: () => null,
+    process: () => '',
   },
 ];
 
-const getPropertyAction = arg => propertyActions.find(value => arg === value.checkType());
+const getPropertyAction = arg =>
+  propertyActions.find(value => arg === value.check());
 
-const hasKey = (data, searchKey) => {
-  if (data) {
-    const { key, children } = data;
-    if (key === searchKey) {
-      return true;
-    }
-    const filteredBySearchKey = children
-      ? Object.keys(children).filter(type => children[type].filter(child => child.key === searchKey))
-      : [];
-
-    if (filteredBySearchKey.length !== 0) {
-      return true;
-    }
-
-    const filteredByChildrenProperty = children
-      ? children.unchanged.filter(has('children'))
-      : [];
-
-    if (filteredByChildrenProperty.length === 0) {
-      return false;
-    }
-
-    return filteredByChildrenProperty.reduce(
-      (acc, entry) => acc && hasKey(entry, searchKey),
-      true,
-    );
+const hasName = (data, searchName) => {
+  const { name, children } = data;
+  if (name === searchName) {
+    return true;
+  }
+  if (children) {
+    return children.some(child => hasName(child, searchName));
   }
   return false;
 };
 
-const buildNestedPropertyPath = (tree, searchKey) => Object.keys(tree).reduce((acc, keyType) => {
-  const filteredBySearchKey = tree[keyType].filter(value => hasKey(value, searchKey));
-  if (filteredBySearchKey.length === 0) {
-    return acc;
-  }
-  const [{ key, children }] = filteredBySearchKey;
-  if (!children) {
-    if (key === searchKey) {
-      return [...acc, key];
+const sortColl = (func, coll) =>
+  sortBy(func, coll).reduce((acc, value) => {
+    const { children } = value;
+    if (!children) {
+      return [...acc, value];
     }
-    return acc;
-  }
-  return [...[...acc, key], ...buildNestedPropertyPath(children, searchKey)];
-}, []);
-
-export default (ast) => {
-  const traverseChildren = (data, keyType) => data.reduce((acc, entry) => {
-    const { key, value, children } = entry;
-    const nestedProperty = buildNestedPropertyPath(ast, key);
-    const { buildPropertyChangeMessage } = getPropertyAction(keyType);
-    if (typeof value !== 'undefined') {
-      return [...acc, buildPropertyChangeMessage(nestedProperty.join('.'), value)];
-    }
-    if (children) {
-      return [
-        ...acc,
-        ...Object.keys(children).reduce(
-          (iAcc, n) => [...iAcc, ...traverseChildren(children[n], n)],
-          [],
-        ),
-      ];
-    }
-    return [];
+    const newValue = { ...value, children: sortColl(func, children) };
+    return [...acc, newValue];
   }, []);
 
-  return Object.keys(ast)
-    .reduce((acc, key) => [...acc, ...traverseChildren(ast[key], key)], [])
-    .filter(v => v)
-    .slice()
+const buildComplexName = (f, data, searchName, acc) => {
+  const { name, children } = data;
+  const newAcc = f(acc, data);
+
+  if (!children) {
+    if (name === searchName) {
+      return newAcc;
+    }
+    return acc;
+  }
+  if (!acc.includes(searchName)) {
+    const sortedChildren = sortColl(o => o.type === 'unchanged', children);
+    return sortedChildren.reduce(
+      (iAcc, child) => buildComplexName(f, child, searchName, iAcc),
+      newAcc,
+    );
+  }
+  return acc;
+};
+
+const sort = str =>
+  str
+    .split('\n')
     .sort()
     .join('\n');
+
+export default (ast) => {
+  const mapData = (data) => {
+    const { type, name, ...rest } = data;
+    const { children } = rest;
+    const { process } = getPropertyAction(type);
+
+    if (children) {
+      return children.reduce((acc, child) => `${acc}${mapData(child)}`, '');
+    }
+
+    const complexName = buildComplexName(
+      (acc, { name: dataName }) => [...acc, dataName],
+      ast.find(value => hasName(value, name)),
+      name,
+      [],
+    ).join('.');
+    return process(complexName, rest);
+  };
+  const result = ast.reduce((acc, v) => `${acc}${mapData(v)}`, '');
+  return sort(result);
 };
