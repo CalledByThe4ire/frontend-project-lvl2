@@ -1,6 +1,4 @@
-import { sortBy } from 'lodash/fp';
-
-const mapValue = (value) => {
+const mapValue = (value = '') => {
   if (value instanceof Object) {
     return '[complex value]';
   }
@@ -16,7 +14,7 @@ const propertyActions = [
     check() {
       return this.type;
     },
-    process: (name, args) => {
+    process: (name = '', args = {}) => {
       const { value } = args;
       const mappedValue = mapValue(value);
       return `Property '${name}' was added with value: ${mappedValue}\n`;
@@ -27,14 +25,14 @@ const propertyActions = [
     check() {
       return this.type;
     },
-    process: name => `Property '${name}' was removed\n`,
+    process: (name = '') => `Property '${name}' was removed\n`,
   },
   {
     type: 'changed',
     check() {
       return this.type;
     },
-    process: (name, args) => {
+    process: (name = '', args = {}) => {
       const { valueBefore, valueAfter } = args;
       const mappedValueBefore = mapValue(valueBefore);
       const mappedValueAfter = mapValue(valueAfter);
@@ -51,10 +49,10 @@ const propertyActions = [
   },
 ];
 
-const getPropertyAction = arg =>
+const getPropertyAction = (arg = []) =>
   propertyActions.find(value => arg === value.check());
 
-const hasName = (data, searchName) => {
+const hasName = (data = {}, searchName = '') => {
   const { name, children } = data;
   if (name === searchName) {
     return true;
@@ -65,17 +63,12 @@ const hasName = (data, searchName) => {
   return false;
 };
 
-const sortColl = (func, coll) =>
-  sortBy(func, coll).reduce((acc, value) => {
-    const { children } = value;
-    if (!children) {
-      return [...acc, value];
-    }
-    const newValue = { ...value, children: sortColl(func, children) };
-    return [...acc, newValue];
-  }, []);
-
-const buildComplexName = (f, data, searchName, acc) => {
+const buildComplexName = (
+  f = () => {},
+  data = {},
+  searchName = '',
+  acc = [],
+) => {
   const { name, children } = data;
   const newAcc = f(acc, data);
 
@@ -85,9 +78,8 @@ const buildComplexName = (f, data, searchName, acc) => {
     }
     return acc;
   }
-  if (!acc.includes(searchName)) {
-    const sortedChildren = sortColl(o => o.type === 'unchanged', children);
-    return sortedChildren.reduce(
+  if (hasName(data, searchName)) {
+    return children.reduce(
       (iAcc, child) => buildComplexName(f, child, searchName, iAcc),
       newAcc,
     );
@@ -95,13 +87,13 @@ const buildComplexName = (f, data, searchName, acc) => {
   return acc;
 };
 
-const sort = str =>
+const sort = (str = '') =>
   str
     .split('\n')
     .sort()
     .join('\n');
 
-export default (ast) => {
+export default (ast = []) => {
   const mapData = (data) => {
     const { type, name, ...rest } = data;
     const { children } = rest;
