@@ -6,7 +6,7 @@ const propertyActions = [
     check() {
       return this.type;
     },
-    process: (name, args) => {
+    process: (name = '', args = {}) => {
       const { value } = args;
       return { [`+ ${name}`]: value };
     },
@@ -16,7 +16,7 @@ const propertyActions = [
     check() {
       return this.type;
     },
-    process: (name, args) => {
+    process: (name = '', args = {}) => {
       const { value } = args;
       return { [`- ${name}`]: value };
     },
@@ -26,7 +26,7 @@ const propertyActions = [
     check() {
       return this.type;
     },
-    process: (name, args) => {
+    process: (name = '', args = {}) => {
       const { valueBefore, valueAfter } = args;
       return {
         [`- ${name}`]: valueBefore,
@@ -39,17 +39,17 @@ const propertyActions = [
     check() {
       return this.type;
     },
-    process: (name, args) => {
+    process: (name = '', args = {}) => {
       const { value } = args;
       return { [name]: value };
     },
   },
 ];
 
-const getPropertyAction = arg =>
+const getPropertyAction = (arg = []) =>
   propertyActions.find(value => arg === value.check());
 
-const format = (ast) => {
+const format = (ast = []) => {
   const mapData = (data) => {
     const { type, name, ...rest } = data;
     const { children } = rest;
@@ -68,8 +68,8 @@ const format = (ast) => {
   return ast.reduce((acc, entry) => ({ ...acc, ...mapData(entry) }), {});
 };
 
-const sort = (func, obj) => {
-  const sorted = fromPairs(sortBy(func, toPairs(obj)));
+const sort = (func = () => {}, object = {}) => {
+  const sorted = fromPairs(sortBy(func, toPairs(object)));
   return Object.keys(sorted).reduce((acc, key) => {
     const value = sorted[key];
     if (value instanceof Object) {
@@ -79,14 +79,18 @@ const sort = (func, obj) => {
   }, {});
 };
 
-export default (obj) => {
-  const formatted = format(obj);
+export default (object) => {
+  if (typeof object === 'undefined' || Object.keys(object).length === 0) {
+    return '';
+  }
+
+  const formatted = format(object);
   const sorted = sort((entry) => {
     const [key] = entry;
     return key.replace(/[-+]\s/, '');
   }, formatted);
 
-  const iter = (data, factor) =>
+  const iter = (data = {}, factor = 1) =>
     Object.keys(data).reduce((acc, key) => {
       const newKey = key.match(/^[-+]/) ? key : `${' '.repeat(2)}${key}`;
       const value = data[key];
@@ -102,5 +106,5 @@ export default (obj) => {
       keyValuePair = `${newKey}: ${value}\n`;
       return `${acc}${' '.repeat(2 * factor)}${keyValuePair}`;
     }, '');
-  return `{\n${iter(sorted, 1)}}`;
+  return `{\n${iter(sorted)}}`;
 };
