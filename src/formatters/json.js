@@ -1,4 +1,4 @@
-const countNumberOfStateChange = (ast, state) =>
+const countNumberOfStateChange = (ast = [], state = '') =>
   ast.reduce((acc, data) => {
     const { type, children } = data;
     const newAcc = type !== state ? acc : acc + 1;
@@ -9,8 +9,11 @@ const countNumberOfStateChange = (ast, state) =>
     return newAcc + countNumberOfStateChange(children, state);
   }, 0);
 
-export default ast =>
-  JSON.stringify(
+export default (ast) => {
+  if (typeof ast === 'undefined' || ast.length === 0) {
+    return {};
+  }
+  return JSON.stringify(
     {
       addedPropertiesCount: countNumberOfStateChange(ast, 'added'),
       removedPropertiesCount: countNumberOfStateChange(ast, 'removed'),
@@ -20,3 +23,4 @@ export default ast =>
     null,
     '\t',
   );
+};
