@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import genDiff from '../../src';
+import genDiff from '../src';
 
 const formats = {
   json: 'json',
