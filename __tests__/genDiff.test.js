@@ -35,7 +35,7 @@ describe('gendiff', () => {
       }, []);
 
       test.each(table)('%s', (format, before, after, expected) => {
-        expect(genDiff(before, after, formatter)).toEqual(expect.stringContaining(expected));
+        expect(genDiff(before, after, formatter).trim()).toEqual(expected.trim());
       });
     });
   });
