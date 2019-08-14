@@ -1,69 +1,39 @@
 import { sortBy, toPairs, fromPairs } from 'lodash/fp';
 
-const propertyActions = [
-  {
-    type: 'added',
-    check() {
-      return this.type;
-    },
-    process: (name = '', args = {}) => {
-      const { value } = args;
-      return { [`+ ${name}`]: value };
-    },
+const typeActions = {
+  inner: (name, args, fn) => {
+    const { children } = args;
+    return {
+      [name]: children.reduce((acc, child) => ({ ...acc, ...fn(child) }), {}),
+    };
   },
-  {
-    type: 'removed',
-    check() {
-      return this.type;
-    },
-    process: (name = '', args = {}) => {
-      const { value } = args;
-      return { [`- ${name}`]: value };
-    },
+  added: (name, args) => {
+    const { value } = args;
+    return { [`+ ${name}`]: value };
   },
-  {
-    type: 'changed',
-    check() {
-      return this.type;
-    },
-    process: (name = '', args = {}) => {
-      const { valueBefore, valueAfter } = args;
-      return {
-        [`- ${name}`]: valueBefore,
-        [`+ ${name}`]: valueAfter,
-      };
-    },
+  removed: (name, args) => {
+    const { value } = args;
+    return { [`- ${name}`]: value };
   },
-  {
-    type: 'unchanged',
-    check() {
-      return this.type;
-    },
-    process: (name = '', args = {}) => {
-      const { value } = args;
-      return { [name]: value };
-    },
+  changed: (name, args) => {
+    const { valueBefore, valueAfter } = args;
+    return {
+      [`- ${name}`]: valueBefore,
+      [`+ ${name}`]: valueAfter,
+    };
   },
-];
-
-const getPropertyAction = (arg = []) =>
-  propertyActions.find(value => arg === value.check());
+  unchanged: (name, args) => {
+    const { value } = args;
+    return { [name]: value };
+  },
+};
 
 const format = (ast = []) => {
   const mapData = (data) => {
     const { type, name, ...rest } = data;
-    const { children } = rest;
-    const { process } = getPropertyAction(type);
-
-    if (children) {
-      return {
-        [name]: children.reduce(
-          (acc, child) => ({ ...acc, ...mapData(child) }),
-          {},
-        ),
-      };
-    }
-    return process(name, rest);
+    const buildAcc = typeActions[type];
+    const acc = buildAcc(name, rest, mapData);
+    return acc;
   };
   return ast.reduce((acc, entry) => ({ ...acc, ...mapData(entry) }), {});
 };
