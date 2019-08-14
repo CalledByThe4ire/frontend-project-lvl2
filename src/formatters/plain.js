@@ -8,84 +8,53 @@ const mapValue = (value = '') => {
   return `${value}`;
 };
 
-const propertyActions = [
-  {
-    type: 'added',
-    check() {
-      return this.type;
-    },
-    process: (name = '', args = {}) => {
-      const { value } = args;
-      const mappedValue = mapValue(value);
-      return `Property '${name}' was added with value: ${mappedValue}\n`;
-    },
+const typeActions = {
+  inner: (name, args, fn) => {
+    const { children } = args;
+    return children.reduce((acc, child) => `${acc}${fn(child)}`, '');
   },
-  {
-    type: 'removed',
-    check() {
-      return this.type;
-    },
-    process: (name = '') => `Property '${name}' was removed\n`,
+  added: (name, args) => {
+    const { value } = args;
+    const mappedValue = mapValue(value);
+    return `Property '${name}' was added with value: ${mappedValue}\n`;
   },
-  {
-    type: 'changed',
-    check() {
-      return this.type;
-    },
-    process: (name = '', args = {}) => {
-      const { valueBefore, valueAfter } = args;
-      const mappedValueBefore = mapValue(valueBefore);
-      const mappedValueAfter = mapValue(valueAfter);
+  removed: name => `Property '${name}' was removed\n`,
+  changed: (name, args) => {
+    const { valueBefore, valueAfter } = args;
+    const mappedValueBefore = mapValue(valueBefore);
+    const mappedValueAfter = mapValue(valueAfter);
 
-      return `Property '${name}' was updated. From ${mappedValueBefore} to ${mappedValueAfter}\n`;
-    },
+    return `Property '${name}' was updated. From ${mappedValueBefore} to ${mappedValueAfter}\n`;
   },
-  {
-    type: 'unchanged',
-    check() {
-      return this.type;
-    },
-    process: () => '',
-  },
-];
+  unchanged: () => '',
+};
 
-const getPropertyAction = (arg = []) =>
-  propertyActions.find(value => arg === value.check());
-
-const hasName = (data = {}, searchName = '') => {
+const hasSearchName = (data = {}, searchName = '') => {
   const { name, children } = data;
   if (name === searchName) {
     return true;
   }
   if (children) {
-    return children.some(child => hasName(child, searchName));
+    return children.some(child => hasSearchName(child, searchName));
   }
   return false;
 };
 
-const buildComplexName = (
-  f = () => {},
-  data = {},
-  searchName = '',
-  acc = [],
-) => {
-  const { name, children } = data;
-  const newAcc = f(acc, data);
-
-  if (!children) {
-    if (name === searchName) {
-      return newAcc;
-    }
+const buildComplexName = (ast = [], searchName = '') => ast.reduce((acc, data) => {
+  if (!hasSearchName(data, searchName)) {
     return acc;
   }
-  if (hasName(data, searchName)) {
-    return children.reduce(
-      (iAcc, child) => buildComplexName(f, child, searchName, iAcc),
-      newAcc,
-    );
+  const { name, children } = data;
+
+  if (children) {
+    return [...acc, name, ...buildComplexName(children, searchName)];
+  }
+
+  if (name === searchName) {
+    return [...acc, name];
   }
   return acc;
-};
+}, []);
 
 const sort = (str = '') =>
   str
@@ -96,21 +65,11 @@ const sort = (str = '') =>
 export default (ast = []) => {
   const mapData = (data) => {
     const { type, name, ...rest } = data;
-    const { children } = rest;
-    const { process } = getPropertyAction(type);
-
-    if (children) {
-      return children.reduce((acc, child) => `${acc}${mapData(child)}`, '');
-    }
-
-    const complexName = buildComplexName(
-      (acc, { name: dataName }) => [...acc, dataName],
-      ast.find(value => hasName(value, name)),
-      name,
-      [],
-    ).join('.');
-    return process(complexName, rest);
+    const buildAcc = typeActions[type];
+    const complexName = buildComplexName(ast, name).join('.');
+    const acc = buildAcc(complexName, rest, mapData);
+    return acc;
   };
-  const result = ast.reduce((acc, v) => `${acc}${mapData(v)}`, '');
+  const result = ast.reduce((acc, entry) => `${acc}${mapData(entry)}`, '');
   return sort(result);
 };
