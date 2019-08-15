@@ -1,1 +1,1 @@
-export default JSON.stringify;
+export default ast => JSON.stringify(ast);
