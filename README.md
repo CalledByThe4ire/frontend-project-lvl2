@@ -15,7 +15,7 @@ Run `make install`
 #### [live example of package installation process](https://asciinema.org/a/261282)
 #### [live example of package running with 'stringify' formatter](https://asciinema.org/a/261283)
 #### [live example of package running with 'plain' formatter](https://asciinema.org/a/261285)
-#### [live example of package running with 'json' formatter](https://asciinema.org/a/261286)
+#### [live example of package running with 'json' formatter](https://asciinema.org/a/262691)
 
 
 
