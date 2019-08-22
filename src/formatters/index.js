@@ -1,9 +1,9 @@
-import stringify from './stringify';
+import common from './common';
 import plain from './plain';
 import json from './json';
 
 const formatters = {
-  stringify,
+  common,
   plain,
   json,
 };

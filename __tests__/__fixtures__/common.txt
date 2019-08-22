@@ -5,11 +5,11 @@
       - setting2: 200
       - setting3: true
       + setting3: {
-            key: value
+          key: value
         }
       + setting4: blah blah
       + setting5: {
-            key5: value5
+          key5: value5
         }
         setting6: {
             key: value
@@ -21,14 +21,14 @@
       + baz: bars
         foo: bar
       - nest: {
-            key: value
+          key: value
         }
       + nest: str
     }
   - group2: {
-        abc: 12345
+      abc: 12345
     }
   + group3: {
-        fee: 100500
+      fee: 100500
     }
 }
