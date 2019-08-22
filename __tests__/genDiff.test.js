@@ -19,7 +19,7 @@ describe('gendiff', () => {
         path.join(fixuturesPath, `${formatter}.txt`),
         'utf8',
       );
-      const table = Object.keys(formats).reduce((acc, format) => {
+      const table = Object.keys(formats).map((format) => {
         const before = path.join(
           fixuturesPath,
           `${format}`,
@@ -31,11 +31,11 @@ describe('gendiff', () => {
           `after.${formats[format]}`,
         );
 
-        return [...acc, [format, before, after, result]];
-      }, []);
+        return [format, before, after, result];
+      });
 
       test.each(table)('%s', (format, before, after, expected) => {
-        expect(genDiff(before, after, formatter).trim()).toEqual(expected.trim());
+        expect(genDiff(before, after, formatter)).toEqual(expected.trimRight());
       });
     });
   });
