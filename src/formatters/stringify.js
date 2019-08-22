@@ -1,80 +1,71 @@
-import { sortBy, toPairs, fromPairs } from 'lodash/fp';
+const mapValue = (data, times, step) => {
+  if (data instanceof Object) {
+    const result = Object.keys(data).reduce(
+      (acc, key) => [...acc, `${' '.repeat(times + step)}${key}: ${data[key]}`],
+      [],
+    );
+    return `{\n${result.join('\n')}\n${' '.repeat(times)}}`;
+  }
+  return `${data}`;
+};
 
 const typeActions = {
-  inner: (name, args, fn) => {
-    const { children } = args;
-    return {
-      [name]: children.reduce((acc, child) => ({ ...acc, ...fn(child) }), {}),
-    };
+  inner: (props, times, step, fn) => {
+    const { name, children } = props;
+    return `${' '.repeat(times + step)}${name}: {\n${fn(
+      children,
+      times + step * 2,
+      step,
+    ).join('\n')}\n${' '.repeat(times + step)}}`;
   },
-  added: (name, args) => {
-    const { value } = args;
-    return { [`+ ${name}`]: value };
+  added: (props, times, step) => {
+    const { name, value } = props;
+    return `${' '.repeat(times)}+ ${name}: ${mapValue(
+      value,
+      times + step,
+      step,
+    )}`;
   },
-  removed: (name, args) => {
-    const { value } = args;
-    return { [`- ${name}`]: value };
+  removed: (props, times, step) => {
+    const { name, value } = props;
+    return `${' '.repeat(times)}- ${name}: ${mapValue(
+      value,
+      times + step,
+      step,
+    )}`;
   },
-  changed: (name, args) => {
-    const { valueBefore, valueAfter } = args;
-    return {
-      [`- ${name}`]: valueBefore,
-      [`+ ${name}`]: valueAfter,
-    };
+  changed: (props, times, step) => {
+    const { name, valueBefore, valueAfter } = props;
+    return [
+      `${' '.repeat(times)}- ${name}: ${mapValue(
+        valueBefore,
+        times + step,
+        step,
+      )}`,
+      `${' '.repeat(times)}+ ${name}: ${mapValue(
+        valueAfter,
+        times + step,
+        step,
+      )}`,
+    ].join('\n');
   },
-  unchanged: (name, args) => {
-    const { value } = args;
-    return { [name]: value };
+  unchanged: (props, times, step) => {
+    const { name, value } = props;
+    return `${' '.repeat(times + step)}${name}: ${mapValue(
+      value,
+      times + step,
+      step,
+    )}`;
   },
 };
 
-const format = (ast = []) => {
-  const mapData = (data) => {
-    const { type, name, ...rest } = data;
+export default (ast) => {
+  const reduce = (data, times, step) => data.reduce((acc, entry) => {
+    const { type, ...props } = entry;
     const buildAcc = typeActions[type];
-    const acc = buildAcc(name, rest, mapData);
-    return acc;
-  };
-  return ast.reduce((acc, entry) => ({ ...acc, ...mapData(entry) }), {});
-};
-
-const sort = (func = () => {}, object = {}) => {
-  const sorted = fromPairs(sortBy(func, toPairs(object)));
-  return Object.keys(sorted).reduce((acc, key) => {
-    const value = sorted[key];
-    if (value instanceof Object) {
-      return { ...acc, [key]: sort(func, value) };
-    }
-    return { ...acc, [key]: value };
-  }, {});
-};
-
-export default (object) => {
-  if (typeof object === 'undefined' || Object.keys(object).length === 0) {
-    return '';
-  }
-
-  const formatted = format(object);
-  const sorted = sort((entry) => {
-    const [key] = entry;
-    return key.replace(/[-+]\s/, '');
-  }, formatted);
-
-  const iter = (data = {}, factor = 1) =>
-    Object.keys(data).reduce((acc, key) => {
-      const newKey = key.match(/^[-+]/) ? key : `${' '.repeat(2)}${key}`;
-      const value = data[key];
-      let keyValuePair = '';
-
-      if (value instanceof Object) {
-        keyValuePair = `${' '.repeat(2 * factor)}${newKey}: {\n${iter(
-          value,
-          factor + 2,
-        )}${' '.repeat(2 * factor + 2)}}\n`;
-        return `${acc}${keyValuePair}`;
-      }
-      keyValuePair = `${newKey}: ${value}\n`;
-      return `${acc}${' '.repeat(2 * factor)}${keyValuePair}`;
-    }, '');
-  return `{\n${iter(sorted)}}`;
+    const newAcc = [...acc, buildAcc(props, times, step, reduce)];
+    return newAcc;
+  }, []);
+  const result = reduce(ast, 2, 2);
+  return `{\n${result.join('\n')}\n}`;
 };
