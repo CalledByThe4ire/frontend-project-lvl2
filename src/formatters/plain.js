@@ -60,17 +60,16 @@ const buildComplexName = (ast = [], searchName = '') =>
   }, []);
 
 export default (ast = []) => {
-  const reduce = data =>
-    data.reduce((acc, entry) => {
+  const map = data =>
+    data.map((entry) => {
       const { type, name, ...rest } = entry;
       const buildAcc = typeActions[type];
       const complexName = buildComplexName(ast, name).join('.');
-      const newAcc = [...acc, buildAcc(complexName, rest, reduce)];
-      return newAcc;
+      return [buildAcc(complexName, rest, map)];
     }, []);
 
-  const reduced = reduce(ast);
-  const flattened = flattenDeep(reduced);
+  const mapped = map(ast);
+  const flattened = flattenDeep(mapped);
   const filtered = flattened.filter(string => string);
   const stringified = filtered.join('\n');
 
