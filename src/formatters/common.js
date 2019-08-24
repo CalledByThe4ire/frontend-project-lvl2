@@ -60,12 +60,11 @@ const typeActions = {
 };
 
 export default (ast) => {
-  const reduce = (data, times, step) => data.reduce((acc, entry) => {
+  const map = (data, times, step) => data.map((entry) => {
     const { type, ...props } = entry;
     const buildAcc = typeActions[type];
-    const newAcc = [...acc, buildAcc(props, times, step, reduce)];
-    return newAcc;
-  }, []);
-  const result = reduce(ast, 2, 2);
+    return [buildAcc(props, times, step, map)];
+  });
+  const result = map(ast, 2, 2);
   return `{\n${result.join('\n')}\n}`;
 };
