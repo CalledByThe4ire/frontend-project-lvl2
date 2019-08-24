@@ -8,7 +8,7 @@ const formats = {
   ini: 'ini',
 };
 
-const formatters = ['common', 'plain', 'json'];
+const formatters = ['diff', 'plain', 'json'];
 
 const fixuturesPath = path.join(__dirname, '__fixtures__');
 

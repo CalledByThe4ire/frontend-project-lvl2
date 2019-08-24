@@ -1,9 +1,9 @@
-import common from './common';
+import diff from './diff';
 import plain from './plain';
 import json from './json';
 
 const formatters = {
-  common,
+  diff,
   plain,
   json,
 };
