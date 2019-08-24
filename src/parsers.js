@@ -7,4 +7,4 @@ const parsers = {
   ini: ini.parse,
 };
 
-export default dataStructureName => parsers[dataStructureName];
+export default dataFormatName => parsers[dataFormatName];
