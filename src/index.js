@@ -13,8 +13,22 @@ const parseData = (data) => {
 };
 
 const buildAST = (data1 = {}, data2 = {}) => {
-  const object1 = data1;
-  const object2 = data2;
+  const sortObjectKeys = obj => Object.keys(obj)
+    .sort()
+    .reduce((acc, key) => {
+      if (obj[key] instanceof Object) {
+        return {
+          ...acc,
+          [key]: sortObjectKeys(obj[key]),
+        };
+      }
+      return {
+        ...acc,
+        [key]: obj[key],
+      };
+    }, {});
+  const object1 = sortObjectKeys(data1);
+  const object2 = sortObjectKeys(data2);
 
   return union(Object.keys(object1), Object.keys(object2)).map((key) => {
     if (has(key, object1) && has(key, object2)) {
@@ -54,20 +68,10 @@ const buildAST = (data1 = {}, data2 = {}) => {
   });
 };
 
-const sortAST = (func = () => {}, data = []) =>
-  sortBy(func, data).map((entry) => {
-    const { type, name, children } = entry;
-    if (type === 'inner') {
-      return { type, name, children: sortAST(func, children) };
-    }
-    return entry;
-  });
-
 export default (filepath1, filepath2, outputFormat) => {
   const data1 = parseData(filepath1);
   const data2 = parseData(filepath2);
   const ast = buildAST(data1, data2);
-  const sortedAST = sortAST(o => o.name, ast);
   const format = getFormatter(outputFormat);
-  return format(sortedAST);
+  return format(ast);
 };
