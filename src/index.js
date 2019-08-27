@@ -13,24 +13,12 @@ const parseData = (data) => {
 };
 
 const buildAST = (data1 = {}, data2 = {}) => {
-  const sortObjectKeys = obj => Object.keys(obj)
-    .sort()
-    .reduce((acc, key) => {
-      if (obj[key] instanceof Object) {
-        return {
-          ...acc,
-          [key]: sortObjectKeys(obj[key]),
-        };
-      }
-      return {
-        ...acc,
-        [key]: obj[key],
-      };
-    }, {});
-  const object1 = sortObjectKeys(data1);
-  const object2 = sortObjectKeys(data2);
+  const object1 = data1;
+  const object2 = data2;
+  const keys = union(Object.keys(object1), Object.keys(object2));
+  const sortedKeys = keys.slice().sort();
 
-  return union(Object.keys(object1), Object.keys(object2)).map((key) => {
+  return sortedKeys.map((key) => {
     if (has(key, object1) && has(key, object2)) {
       if (object1[key] instanceof Object && object2[key] instanceof Object) {
         return {
