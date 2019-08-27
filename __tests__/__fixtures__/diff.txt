@@ -2,6 +2,7 @@
     common: {
       + follow: false
         setting1: Value 1
+      - setting2: 200
       - setting3: true
       + setting3: {
           key: value
@@ -14,7 +15,6 @@
             key: value
           + ops: vops
         }
-      - setting2: 200
     }
     group1: {
       - baz: bas
@@ -25,10 +25,10 @@
         }
       + nest: str
     }
-  + group3: {
-      fee: 100500
-    }
   - group2: {
       abc: 12345
+    }
+  + group3: {
+      fee: 100500
     }
 }
