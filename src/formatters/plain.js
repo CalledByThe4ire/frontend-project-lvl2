@@ -28,7 +28,7 @@ const typeActions = {
 
     return `Property '${name}' was updated. From ${mappedValueBefore} to ${mappedValueAfter}`;
   },
-  unchanged: () => '',
+  unchanged: () => null,
 };
 
 const hasSearchName = (data = {}, searchName = '') => {
@@ -65,7 +65,7 @@ export default (ast = []) => {
       const { type, name, ...rest } = entry;
       const buildAcc = typeActions[type];
       const complexName = buildComplexName(ast, name).join('.');
-      return [buildAcc(complexName, rest, map)];
+      return buildAcc(complexName, rest, map);
     }, []);
 
   const mapped = map(ast);

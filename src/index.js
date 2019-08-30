@@ -1,5 +1,5 @@
 import 'source-map-support/register';
-import { has, union, sortBy } from 'lodash/fp';
+import { has, union } from 'lodash/fp';
 import fs from 'fs';
 import path from 'path';
 
@@ -16,7 +16,7 @@ const buildAST = (data1 = {}, data2 = {}) => {
   const object1 = data1;
   const object2 = data2;
   const keys = union(Object.keys(object1), Object.keys(object2));
-  const sortedKeys = keys.slice().sort();
+  const sortedKeys = keys.sort();
 
   return sortedKeys.map((key) => {
     if (has(key, object1) && has(key, object2)) {

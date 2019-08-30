@@ -1,4 +1,4 @@
-const mapValue = (data, times, step) => {
+const stringify = (data, times, step) => {
   if (data instanceof Object) {
     const result = Object.keys(data).reduce(
       (acc, key) => [...acc, `${' '.repeat(times + step)}${key}: ${data[key]}`],
@@ -6,7 +6,7 @@ const mapValue = (data, times, step) => {
     );
     return `{\n${result.join('\n')}\n${' '.repeat(times)}}`;
   }
-  return `${data}`;
+  return data;
 };
 
 const typeActions = {
@@ -20,7 +20,7 @@ const typeActions = {
   },
   added: (props, times, step) => {
     const { name, value } = props;
-    return `${' '.repeat(times)}+ ${name}: ${mapValue(
+    return `${' '.repeat(times)}+ ${name}: ${stringify(
       value,
       times + step,
       step,
@@ -28,7 +28,7 @@ const typeActions = {
   },
   removed: (props, times, step) => {
     const { name, value } = props;
-    return `${' '.repeat(times)}- ${name}: ${mapValue(
+    return `${' '.repeat(times)}- ${name}: ${stringify(
       value,
       times + step,
       step,
@@ -37,12 +37,12 @@ const typeActions = {
   changed: (props, times, step) => {
     const { name, valueBefore, valueAfter } = props;
     return [
-      `${' '.repeat(times)}- ${name}: ${mapValue(
+      `${' '.repeat(times)}- ${name}: ${stringify(
         valueBefore,
         times + step,
         step,
       )}`,
-      `${' '.repeat(times)}+ ${name}: ${mapValue(
+      `${' '.repeat(times)}+ ${name}: ${stringify(
         valueAfter,
         times + step,
         step,
@@ -51,7 +51,7 @@ const typeActions = {
   },
   unchanged: (props, times, step) => {
     const { name, value } = props;
-    return `${' '.repeat(times + step)}${name}: ${mapValue(
+    return `${' '.repeat(times + step)}${name}: ${stringify(
       value,
       times + step,
       step,
