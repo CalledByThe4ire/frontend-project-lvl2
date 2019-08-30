@@ -63,4 +63,3 @@ export default (filepath1, filepath2, outputFormat) => {
   const format = getFormatter(outputFormat);
   return format(ast);
 };
-
