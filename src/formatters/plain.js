@@ -1,4 +1,4 @@
-const stringify = (value = '') => {
+const stringify = (value) => {
   if (value instanceof Object) {
     return '[complex value]';
   }
@@ -29,7 +29,7 @@ const typeActions = {
   unchanged: () => null,
 };
 
-export default (ast = []) => {
+export default (ast) => {
   const iter = (data, path = '') => data.map((entry) => {
     const { type, name, ...rest } = entry;
     const action = typeActions[type];
